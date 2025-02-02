@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:elevation="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <!-- QR Barcode Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/qr_IMG_barcode"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background" />
+
+        <!-- Info Icon -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/qr_IMG_info"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_edit" />
+
+        <!-- Delete Icon -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/qr_IMG_delete"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_below="@id/qr_IMG_info"
+            android:layout_alignEnd="@id/qr_IMG_info"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_delete" />
+
+        <!-- QR ID -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_alignTop="@id/qr_IMG_barcode"
+            android:text="1"
+            android:lines="1"
+            android:textSize="20sp"/>
+
+        <!-- QR Size -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_id"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="150 Pixels"
+            android:textSize="20sp" />
+
+        <!-- Correction Type -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_correction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_size"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Correction Type H"
+            android:textSize="20sp" />
+
+        <!-- QR URL -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_correction"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:maxLines="2"
+            android:text="https://QR_URL"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

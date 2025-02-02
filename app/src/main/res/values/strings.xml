@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">QR-Demo-Application</string>
+    <string name="title_home">Home</string>
+    <string name="title_my_music">My Music</string>
+    <string name="title_search">Search</string>
+    <string name="title_me">Me</string>
+    <string name="send">SEND</string>
+    <string name="send1">SEND\nwith client 1</string>
+    <string name="send2">SEND\nwith client 2</string>
+    <string name="send3">SEND\nwith client 1</string>
+    <string name="send4">SEND\nwith admin</string>
+    <string name="clear">CLEAR</string>
+    <string name="edit_create">Edit/Create</string>
+    <string name="id">Enter QR Id</string>
+    <string name="start_date">Enter QR Start Date</string>
+    <string name="end_date">Enter QR End Date</string>
+    <string name="type">Enter QR Code Type</string>
+    <string name="valid">Enter If QR Code Active</string>
+    <string name="valid_checkbox">Active?</string>
+    <string name="qr_size">Enter QR Size In Pixels</string>
+    <string name="qr_correction">Enter QR Correction Type \nL/M/Q/H Default M</string>
+    <string name="qr_url">Enter URL Of QR</string>
+</resources>

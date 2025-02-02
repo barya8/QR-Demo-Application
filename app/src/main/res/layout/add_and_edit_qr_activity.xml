@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/id"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/id"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_id"
+            android:visibility="gone" /> <!-- Initially hidden -->
+
+
+        <!-- URL Section -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_qr_code_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/qr_url"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_id" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_qr_code_url"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/qr_url"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_qr_code_url" />
+
+        <!-- Size Section -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/qr_size"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_qr_code_url" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_size"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/qr_size"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_size" />
+
+        <!-- Correction Section -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_correction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/qr_correction"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_size" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_correction"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/qr_correction"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_correction" />
+
+        <!-- Start Date Section -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_date"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_correction" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_start_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/start_date"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_start_date" />
+
+        <!-- Date Section -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_end_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/end_date"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_start_date" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_end_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/end_date"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_end_date" />
+
+        <!-- Type Section -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/type"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_end_date" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/en_ET_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/type"
+            android:minHeight="48dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_type" />
+
+        <!-- Valid Section (Checkbox) -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/en_LBL_valid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/valid"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_ET_type" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/en_CB_valid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/valid_checkbox"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_LBL_valid" />
+
+        <!-- Send Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/en_BTN_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/send"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/en_CB_valid" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

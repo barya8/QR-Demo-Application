@@ -246,7 +246,7 @@ public class ScanActivity extends AppCompatActivity {
             // Get matching item parameters (including QR ID)
             Map<String, String> updateParams = isUrlMatchInClientData(clientDataJson, scannedUrl);
 
-            if (!updateParams.isEmpty()) {
+            if ((!updateParams.isEmpty())&&(updateParams.get("scanned").equals(false))) {
                 updateParams.put("isScanned", "true");
                 updateParams.remove("scanned");
                 updateParams.remove("base64Image");

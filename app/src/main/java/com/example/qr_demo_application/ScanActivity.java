@@ -22,11 +22,17 @@ import androidx.core.content.FileProvider;
 import com.example.qrretrofit.api.GenericController;
 import com.example.qrretrofit.interfaces.GenericCallback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -167,36 +173,121 @@ public class ScanActivity extends AppCompatActivity {
     private void sendImageToApi() {
         if (imageUri != null) {
             try {
-                // Get InputStream from URI
                 InputStream imageStream = getContentResolver().openInputStream(imageUri);
-
-                // Manually read the InputStream into a byte array
                 byte[] imageBytes = getBytesFromInputStream(imageStream);
 
-                // Convert the byte array to a MultipartBody.Part
                 RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), imageBytes);
                 MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", "image.jpg", requestBody);
 
-                // Call the new method to handle the barcode and QR code processing
-                genericController.scanBarcodeOrQRCode(apiKey, filePart, true, new GenericCallback() {
+                // First, scan barcode
+                genericController.scanBarcodeImpl(apiKey, filePart, new GenericCallback() {
                     @Override
-                    public void success(String response) {
-                        // Handle success
-                        Log.d("API CALL", "Success: " + response);
-                        Toast.makeText(ScanActivity.this, "Success: " + response, Toast.LENGTH_SHORT).show();
+                    public void success(String barcodeResponse) {
+                        // If barcode scan is successful, proceed with QR code scan
+                        genericController.scanQRCodeImpl(apiKey, filePart, new GenericCallback() {
+                            @Override
+                            public void success(String qrResponse) {
+                                // Get client data to compare URLs
+                                genericController.getDataByClientImpl(apiKey, new GenericCallback() {
+                                    @Override
+                                    public void success(String clientDataResponse) {
+                                        try {
+                                            // Parse responses
+                                            JSONObject qrJson = new JSONObject(qrResponse);
+                                            JSONObject clientDataJson = new JSONObject(clientDataResponse);
+                                            JSONObject dataObject = qrJson.optJSONObject("data");
+
+                                            // Extract full URL from QR scan
+                                            String scannedUrl = dataObject.optString("fullUrl", "");
+
+                                            // Check if scanned URL matches any URL in client data
+                                            boolean isUrlValid = isUrlMatchInClientData(clientDataJson, scannedUrl);
+
+                                            if (isUrlValid) {
+                                                // Prepare update parameters
+                                                Map<String, String> updateParams = new HashMap<>();
+                                                updateParams.put("valid", String.valueOf(!isUrlValid));
+
+                                                // Update QR code status
+                                                genericController.updateQrByIdImpl(apiKey, updateParams);
+
+                                                // Log results
+                                                Log.d("ScanActivity", "URL Valid: " + !isUrlValid);
+                                                Toast.makeText(ScanActivity.this,
+                                                        "Scan processed. URL " + (isUrlValid ? "Matched!" : "Not Active Ticket"),
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                            else {
+                                                Toast.makeText(ScanActivity.this,
+                                                        "Not Active Ticket",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+
+                                        } catch (JSONException e) {
+                                            Log.e("ScanActivity", "Error parsing JSON", e);
+                                            Toast.makeText(ScanActivity.this,
+                                                    "Internal Server Error",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void error(String error) {
+                                        Log.e("ScanActivity", "Error getting client data: " + error);
+                                        Toast.makeText(ScanActivity.this,
+                                                "Internal Server Error",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void error(String error) {
+                                Log.e("ScanActivity", "QR Scan error: " + error);
+                                Toast.makeText(ScanActivity.this,
+                                        "Cannot Read QR Parameters",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                     @Override
                     public void error(String error) {
-                        // Handle error
-                        Log.d("API CALL", "Error: " + error);
-                        Toast.makeText(ScanActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                        Log.e("ScanActivity", "Barcode Scan error: " + error);
+                        Toast.makeText(ScanActivity.this,
+                                "Invalid QR Code",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
+
             } catch (IOException e) {
-                Log.e("ScanActivity", "Error reading image from URI", e);
+                Log.e("ScanActivity", "Error reading image", e);
+                Toast.makeText(this, "Error reading image", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    // Helper method to check if scanned URL matches any URL in client data
+    private boolean isUrlMatchInClientData(JSONObject clientDataJson, String scannedUrl) {
+        try {
+            JSONObject dataObject = clientDataJson.optJSONObject("data");
+            if (dataObject != null) {
+                // Iterate through the keys (like "0", "1", etc.)
+                Iterator<String> keys = dataObject.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    JSONObject item = dataObject.getJSONObject(key);
+
+                    String itemUrl = item.optString("url", "");
+                    if (itemUrl.equals(scannedUrl)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            Log.e("ScanActivity", "Error parsing client data", e);
+        }
+        return false;
     }
 
     // Helper method to convert InputStream to byte array

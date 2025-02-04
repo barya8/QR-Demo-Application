@@ -8,15 +8,12 @@ public class QRCode implements Serializable {
     private String url;
     private String barcodeImage;
     private String id;
+    private String startTime;
+    private String endTime;
+    private String isScanned;
+    private String type;
 
     public QRCode() {
-    }
-
-    public QRCode(String size, String correction, String url, String barcodeImage, int id) {
-        this.size = size;
-        this.correction = correction;
-        this.url = url;
-        this.barcodeImage = barcodeImage;
     }
 
     public String getSize() {
@@ -61,6 +58,42 @@ public class QRCode implements Serializable {
 
     public QRCode setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public QRCode setStartTime(String startTime) {
+        this.startTime = startTime;
+        return this;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public QRCode setEndTime(String endTime) {
+        this.endTime = endTime;
+        return this;
+    }
+
+    public String getIsScanned() {
+        return isScanned;
+    }
+
+    public QRCode setIsScanned(String scanned) {
+        this.isScanned = scanned;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public QRCode setType(String type) {
+        this.type = type;
         return this;
     }
 

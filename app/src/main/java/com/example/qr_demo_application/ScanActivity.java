@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -111,7 +112,7 @@ public class ScanActivity extends AppCompatActivity {
         });
         // Request permissions and choose action (camera or gallery)
         if (hasPermissions()) {
-            showImageSourceDialog();
+            askForImageSource();
         } else {
             requestPermissions();
         }
@@ -121,6 +122,17 @@ public class ScanActivity extends AppCompatActivity {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
+
+    private void askForImageSource() {
+        new     AlertDialog.Builder(this)
+                .setTitle("Choose Image Source")
+                .setMessage("Would you like to take a picture or select one from your gallery?")
+                .setPositiveButton("Camera", (dialog, which) -> launchCamera())
+                .setNegativeButton("Gallery", (dialog, which) -> showImageSourceDialog())
+                .setCancelable(false)
+                .show();
+    }
+
     private void requestPermissions() {
         requestPermissionLauncher.launch(Manifest.permission.CAMERA);
         requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -129,19 +141,6 @@ public class ScanActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         galleryLauncher.launch(intent);
     }
-
-//        // Check and request camera permission
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-//                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-//                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//            launchCamera();
-//        } else {
-//            // Request permissions
-//            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-//            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-//            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//        }
-//    }
 
     private void launchCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -171,104 +170,120 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     private void sendImageToApi() {
-        if (imageUri != null) {
-            try {
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                byte[] imageBytes = getBytesFromInputStream(imageStream);
+        if (imageUri == null) {
+            Log.e("ScanActivity", "Image URI is null.");
+            return;
+        }
 
-                RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), imageBytes);
-                MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", "image.jpg", requestBody);
+        try {
+            InputStream imageStream = getContentResolver().openInputStream(imageUri);
+            byte[] imageBytes = getBytesFromInputStream(imageStream);
+            RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), imageBytes);
+            MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", "image.jpg", requestBody);
 
-                // First, scan barcode
-                genericController.scanBarcodeImpl(apiKey, filePart, new GenericCallback() {
-                    @Override
-                    public void success(String barcodeResponse) {
-                        // If barcode scan is successful, proceed with QR code scan
-                        genericController.scanQRCodeImpl(apiKey, filePart, new GenericCallback() {
-                            @Override
-                            public void success(String qrResponse) {
-                                // Get client data to compare URLs
-                                genericController.getDataByClientImpl(apiKey, new GenericCallback() {
-                                    @Override
-                                    public void success(String clientDataResponse) {
-                                        try {
-                                            // Parse responses
-                                            JSONObject qrJson = new JSONObject(qrResponse);
-                                            JSONObject clientDataJson = new JSONObject(clientDataResponse);
-                                            JSONObject dataObject = qrJson.optJSONObject("data");
+            // Start the API call sequence
+            scanBarcode(filePart);
 
-                                            // Extract full URL from QR scan
-                                            String scannedUrl = dataObject.optString("fullUrl", "");
-
-                                            // Check if scanned URL matches any URL in client data
-                                            boolean isUrlValid = isUrlMatchInClientData(clientDataJson, scannedUrl);
-
-                                            if (isUrlValid) {
-                                                // Prepare update parameters
-                                                Map<String, String> updateParams = new HashMap<>();
-                                                updateParams.put("valid", String.valueOf(!isUrlValid));
-
-                                                // Update QR code status
-                                                genericController.updateQrByIdImpl(apiKey, updateParams);
-
-                                                // Log results
-                                                Log.d("ScanActivity", "URL Valid: " + !isUrlValid);
-                                                Toast.makeText(ScanActivity.this,
-                                                        "Scan processed. URL " + (isUrlValid ? "Matched!" : "Not Active Ticket"),
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                            else {
-                                                Toast.makeText(ScanActivity.this,
-                                                        "Not Active Ticket",
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-
-                                        } catch (JSONException e) {
-                                            Log.e("ScanActivity", "Error parsing JSON", e);
-                                            Toast.makeText(ScanActivity.this,
-                                                    "Internal Server Error",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void error(String error) {
-                                        Log.e("ScanActivity", "Error getting client data: " + error);
-                                        Toast.makeText(ScanActivity.this,
-                                                "Internal Server Error",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void error(String error) {
-                                Log.e("ScanActivity", "QR Scan error: " + error);
-                                Toast.makeText(ScanActivity.this,
-                                        "Cannot Read QR Parameters",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void error(String error) {
-                        Log.e("ScanActivity", "Barcode Scan error: " + error);
-                        Toast.makeText(ScanActivity.this,
-                                "Invalid QR Code",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-            } catch (IOException e) {
-                Log.e("ScanActivity", "Error reading image", e);
-                Toast.makeText(this, "Error reading image", Toast.LENGTH_SHORT).show();
-            }
+        } catch (IOException e) {
+            Log.e("ScanActivity", "Error reading image", e);
+            Toast.makeText(this, "Error reading image", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void scanBarcode(MultipartBody.Part filePart) {
+        genericController.scanBarcodeImpl(apiKey, filePart, new GenericCallback() {
+            @Override
+            public void success(String barcodeResponse) {
+                scanQRCode(filePart);
+            }
+
+            @Override
+            public void error(String error) {
+                Log.e("ScanActivity", "Barcode Scan error: " + error);
+                showToast("Invalid QR Code");
+            }
+        });
+    }
+
+    private void scanQRCode(MultipartBody.Part filePart) {
+        genericController.scanQRCodeImpl(apiKey, filePart, new GenericCallback() {
+            @Override
+            public void success(String qrResponse) {
+                getClientData(qrResponse);
+            }
+
+            @Override
+            public void error(String error) {
+                Log.e("ScanActivity", "QR Scan error: " + error);
+                showToast("Cannot Read QR Parameters");
+            }
+        });
+    }
+
+    private void getClientData(String qrResponse) {
+        genericController.getDataByClientImpl(apiKey, new GenericCallback() {
+            @Override
+            public void success(String clientDataResponse) {
+                processScannedData(qrResponse, clientDataResponse);
+            }
+
+            @Override
+            public void error(String error) {
+                Log.e("ScanActivity", "Error getting client data: " + error);
+                showToast("Internal Server Error");
+            }
+        });
+    }
+
+    private void processScannedData(String qrResponse, String clientDataResponse) {
+        try {
+            JSONObject qrJson = new JSONObject(qrResponse);
+            JSONObject clientDataJson = new JSONObject(clientDataResponse);
+            JSONObject dataObject = qrJson.optJSONObject("data");
+
+            String scannedUrl = dataObject != null ? dataObject.optString("fullUrl", "") : "";
+
+            // Get matching item parameters (including QR ID)
+            Map<String, String> updateParams = isUrlMatchInClientData(clientDataJson, scannedUrl);
+
+            if (!updateParams.isEmpty()) {
+                updateParams.put("isScanned", "true");
+                updateParams.remove("scanned");
+                updateParams.remove("base64Image");
+                updateQrStatus(updateParams);
+                showToast("Scan processed. URL Matched!");
+            } else {
+                showToast("Not Active Ticket");
+            }
+
+        } catch (JSONException e) {
+            Log.e("ScanActivity", "Error parsing JSON", e);
+            showToast("Internal Server Error");
+        }
+    }
+
+    private void updateQrStatus(Map<String, String> updateParams) {
+            genericController.updateQrByIdImpl(apiKey, updateParams, new GenericCallback() {
+            @Override
+            public void success(String response) {
+                Log.d("ScanActivity", "QR Update Successful: " + response);
+            }
+
+            @Override
+            public void error(String error) {
+                Log.e("ScanActivity", "QR Update Failed: " + error);
+            }
+        });
+    }
+
+    private void showToast(String message) {
+        runOnUiThread(() -> Toast.makeText(ScanActivity.this, message, Toast.LENGTH_SHORT).show());
+    }
+
+
     // Helper method to check if scanned URL matches any URL in client data
-    private boolean isUrlMatchInClientData(JSONObject clientDataJson, String scannedUrl) {
+    private Map<String, String> isUrlMatchInClientData(JSONObject clientDataJson, String scannedUrl) {
+        Map<String, String> itemParams = new HashMap<>();
         try {
             JSONObject dataObject = clientDataJson.optJSONObject("data");
             if (dataObject != null) {
@@ -280,14 +295,21 @@ public class ScanActivity extends AppCompatActivity {
 
                     String itemUrl = item.optString("url", "");
                     if (itemUrl.equals(scannedUrl)) {
-                        return true;
+                        itemParams.put("id",key);
+                        // Collect all parameters needed for the update
+                        Iterator<String> itemKeys = item.keys();
+                        while (itemKeys.hasNext()) {
+                            String paramKey = itemKeys.next();
+                            itemParams.put(paramKey, item.optString(paramKey, ""));
+                        }
+                        return itemParams; // Return the first matched item
                     }
                 }
             }
         } catch (JSONException e) {
             Log.e("ScanActivity", "Error parsing client data", e);
         }
-        return false;
+        return itemParams;
     }
 
     // Helper method to convert InputStream to byte array

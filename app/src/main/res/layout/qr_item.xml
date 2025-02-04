@@ -17,8 +17,8 @@
         <!-- QR Barcode Image -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/qr_IMG_barcode"
-            android:layout_width="170dp"
-            android:layout_height="170dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:scaleType="centerCrop"
@@ -30,7 +30,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_edit" />
 
@@ -41,7 +41,7 @@
             android:layout_height="36dp"
             android:layout_below="@id/qr_IMG_info"
             android:layout_alignEnd="@id/qr_IMG_info"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:src="@drawable/ic_delete" />
 
         <!-- QR ID -->
@@ -52,9 +52,9 @@
             android:layout_marginStart="8dp"
             android:layout_toEndOf="@id/qr_IMG_barcode"
             android:layout_alignTop="@id/qr_IMG_barcode"
-            android:text="1"
+            android:text="ID:1"
             android:lines="1"
-            android:textSize="20sp"/>
+            android:textSize="16sp"/>
 
         <!-- QR Size -->
         <com.google.android.material.textview.MaterialTextView
@@ -64,9 +64,9 @@
             android:layout_below="@id/qr_LBL_id"
             android:layout_toEndOf="@id/qr_IMG_barcode"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:text="150 Pixels"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
 
         <!-- Correction Type -->
         <com.google.android.material.textview.MaterialTextView
@@ -76,19 +76,68 @@
             android:layout_below="@id/qr_LBL_size"
             android:layout_toEndOf="@id/qr_IMG_barcode"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:text="Correction Type H"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
+
+        <!-- Start Time -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_correction"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="Start Time:"
+            android:textSize="16sp" />
+
+        <!-- End Time -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_start_time"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="End Time:"
+            android:textSize="16sp" />
+
+        <!-- Is Scanned -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_is_scanned"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_end_time"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="Is Scanned:"
+            android:textSize="16sp" />
+
+        <!-- Type -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/qr_LBL_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/qr_LBL_is_scanned"
+            android:layout_toEndOf="@id/qr_IMG_barcode"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="Type:"
+            android:textSize="16sp" />
+
 
         <!-- QR URL -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/qr_LBL_url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/qr_LBL_correction"
+            android:layout_below="@id/qr_LBL_type"
             android:layout_toEndOf="@id/qr_IMG_barcode"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:maxLines="2"
             android:text="https://QR_URL"
             android:textSize="18sp"

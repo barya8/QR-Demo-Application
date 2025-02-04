@@ -37,10 +37,14 @@ public class Adapter extends RecyclerView.Adapter<Adapter.QRViewHolder> {
     @Override
     public void onBindViewHolder(QRViewHolder holder, int position) {
         QRCode qrCode = qrCodeList.get(position);
-        holder.idTextView.setText(qrCode.getId());
-        holder.sizeTextView.setText(qrCode.getSize());
-        holder.correctionTextView.setText(qrCode.getCorrection());
-        holder.urlTextView.setText(qrCode.getUrl());
+        holder.idTextView.setText("ID:"+qrCode.getId());
+        holder.sizeTextView.setText(qrCode.getSize()+" Pixels");
+        holder.correctionTextView.setText("Correction:"+qrCode.getCorrection());
+        holder.startTimeTextView.setText("Start Time:"+qrCode.getStartTime());
+        holder.endTimeTextView.setText("End Time:"+qrCode.getEndTime());
+        holder.IsScannedTextView.setText("Is Scanned:"+qrCode.getIsScanned());
+        holder.typeTextView.setText("Type:"+qrCode.getType());
+        holder.urlTextView.setText("Url:"+qrCode.getUrl());
 
         // Decode the Base64 image to a Bitmap
         String base64String = qrCode.getBarcodeImage();
@@ -94,7 +98,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.QRViewHolder> {
     }
 
     public static class QRViewHolder extends RecyclerView.ViewHolder {
-        public TextView sizeTextView, correctionTextView, urlTextView, idTextView;
+        public TextView sizeTextView, correctionTextView, IsScannedTextView, idTextView;
+        public TextView startTimeTextView, endTimeTextView,urlTextView , typeTextView;
         public ImageView barcodeImageView;
         public ImageView editButton, deleteButton;
 
@@ -103,6 +108,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.QRViewHolder> {
             idTextView = view.findViewById(R.id.qr_LBL_id);
             sizeTextView = view.findViewById(R.id.qr_LBL_size);
             correctionTextView = view.findViewById(R.id.qr_LBL_correction);
+            startTimeTextView = view.findViewById(R.id.qr_LBL_start_time);
+            endTimeTextView = view.findViewById(R.id.qr_LBL_end_time);
+            IsScannedTextView = view.findViewById(R.id.qr_LBL_is_scanned);
+            typeTextView = view.findViewById(R.id.qr_LBL_type);
             urlTextView = view.findViewById(R.id.qr_LBL_url);
             barcodeImageView = view.findViewById(R.id.qr_IMG_barcode);
             editButton = view.findViewById(R.id.qr_IMG_info);

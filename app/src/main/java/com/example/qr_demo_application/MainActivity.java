@@ -59,64 +59,19 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnActionL
 
         // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // You can set your adapter here (for QR codes list)
-        // recyclerView.setAdapter(yourAdapter);
         adapter = new Adapter(MainActivity.this, qrCodeList, apiKey);
         adapter.setOnActionListener(this);  // Set the listener here
         recyclerView.setAdapter(adapter);
 
-        // Initialize the generic controller
-        //genericController = new GenericController("https://api.restful-api.dev/", new GenericCallback() {
         genericController = new GenericController(BACKEND_URL, new GenericCallback() {
             @Override
             public void success(String response) {
-                // Handle success response here
                 Log.d("API Success", response);
-                try {
-                    JSONObject jsonResponse = new JSONObject(response);
-                    JSONObject serviceResult = jsonResponse.getJSONObject("serviceResult");
-                    String returnCode = serviceResult.getString("returnCode");
-
-                    if (!"0".equals(returnCode)) {
-                        String errorMessage = serviceResult.getString("returnMessage");
-                        handleError(errorMessage);
-                    }
-                    JSONObject data = jsonResponse.getJSONObject("data");
-                    if ("client".equals(mode)) {
-                        parseClientData(data);
-                    } else if ("admin".equals(mode)) {
-                        parseAdminData(data);
-                    } else {
-                        // Handle unexpected mode
-                        Log.e("Mode Error", "Unexpected mode: " + mode);
-                    }
-                    // After the data is populated, set the adapter
-                    runOnUiThread(() -> {
-                        adapter.updateData(qrCodeList);
-                        // Update the RecyclerView adapter with new data
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
 
             @Override
             public void error(String error) {
-                // Handle error response here
-                try {
-                    JSONObject jsonResponse = new JSONObject(error);
-                    String errorMessage;
-                    if (jsonResponse.has("returnMessage"))
-                        errorMessage = jsonResponse.getString("returnMessage");
-                    else {
-                        JSONObject serviceResult = jsonResponse.getJSONObject("serviceResult");
-                        errorMessage = serviceResult.getString("returnMessage");
-                    }
-                    Log.e("API Error", "Error: " + errorMessage);
-                    handleError(errorMessage);
-                } catch (JSONException e) {
-
-                }
+                Log.d("API Fail", error);
             }
         });
 
@@ -142,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnActionL
             }
         });
 
+        //click on scan qr button- open scanActivity
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,7 +118,23 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnActionL
                         .setTitle("Delete All QR Codes") // More descriptive title
                         .setMessage("Are you sure you want to delete all QR codes?") // More descriptive message
                         .setPositiveButton("Yes", (dialog, which) -> {
-                            genericController.deleteAllImpl(apiKey);
+                            genericController.deleteAllImpl(apiKey, new GenericCallback() {
+                                @Override
+                                public void success(String response) {
+                                    Log.d("DeleteAll", "All QR codes deleted successfully");
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(MainActivity.this, "All QR codes deleted", Toast.LENGTH_SHORT).show();
+                                        qrCodeList.clear();
+                                        adapter.updateData(qrCodeList);
+                                    });
+                                }
+
+                                @Override
+                                public void error(String error) {
+                                    Log.e("DeleteAll Error", error);
+                                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to delete QR codes", Toast.LENGTH_SHORT).show());
+                                }
+                            });
                             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                             startActivity(intent);
                         })
@@ -195,15 +167,67 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnActionL
     }
 
     private void fetchQRCodeList(String apiKey, String mode) {
+        GenericCallback callback = new GenericCallback() {
+            @Override
+            public void success(String response) {
+                Log.d("API Success", response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONObject serviceResult = jsonResponse.getJSONObject("serviceResult");
+                    String returnCode = serviceResult.getString("returnCode");
+
+                    if (!"0".equals(returnCode)) {
+                        String errorMessage = serviceResult.getString("returnMessage");
+                        handleError(errorMessage);
+                        return;
+                    }
+
+                    JSONObject data = jsonResponse.getJSONObject("data");
+                    qrCodeList.clear(); // Clear old data
+
+                    if ("client".equals(mode)) {
+                        parseClientData(data);
+                    } else if ("admin".equals(mode)) {
+                        parseAdminData(data);
+                    } else {
+                        Log.e("Mode Error", "Unexpected mode: " + mode);
+                    }
+
+                    runOnUiThread(() -> adapter.updateData(qrCodeList)); // Update UI
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void error(String error) {
+                try {
+                    JSONObject jsonResponse = new JSONObject(error);
+                    String errorMessage;
+                    if (jsonResponse.has("returnMessage"))
+                        errorMessage = jsonResponse.getString("returnMessage");
+                    else {
+                        JSONObject serviceResult = jsonResponse.getJSONObject("serviceResult");
+                        errorMessage = serviceResult.getString("returnMessage");
+                    }
+                    Log.e("API Error", "Error: " + errorMessage);
+                    handleError(errorMessage);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
         if ("client".equals(mode)) {
-            genericController.getDataByClientImpl(apiKey);
+            genericController.getDataByClientImpl(apiKey, callback);
         } else if ("admin".equals(mode)) {
-            genericController.getAllDataImpl(apiKey);
+            genericController.getAllDataImpl(apiKey, callback);
         } else {
-            // Handle unexpected mode
             Log.e("Mode Error", "Unexpected mode: " + mode);
         }
     }
+
 
     private void parseClientData(JSONObject data) throws Exception {
         Iterator keys = data.keys();
@@ -218,6 +242,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnActionL
             qrCode.setId(key);
             qrCode.setSize(String.valueOf(qrData.getInt("size")));
             qrCode.setCorrection(qrData.getString("errorCorrection"));
+            if (qrData.has("startTime"))
+                qrCode.setStartTime(qrData.getString("startTime"));
+            if (qrData.has("endTime"))
+                qrCode.setEndTime(qrData.getString("endTime"));
+            qrCode.setIsScanned(qrData.getString("scanned"));
+            qrCode.setType(qrData.getString("type"));
             qrCode.setUrl(qrData.getString("url"));
             qrCode.setBarcodeImage(qrData.getString("base64Image"));
             qrCodeList.add(qrCode);
@@ -293,25 +323,23 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnActionL
                 .setTitle("Delete QR Code")
                 .setMessage("Are you sure you want to delete this QR code?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    genericController.deleteQrByIdImpl(apiKey, Integer.parseInt(qrCode.getId()),
-                            new com.example.qrretrofit.interfaces.GenericCallback() {
-                                @Override
-                                public void success(String data) {
-                                    runOnUiThread(() -> {
-                                        adapter.removeItem(qrCode);
-                                        Snackbar.make(recyclerView, "QR code deleted successfully",
-                                                Snackbar.LENGTH_LONG).show();
-                                    });
-                                }
-
-                                @Override
-                                public void error(String errorMessage) {
-                                    runOnUiThread(() -> {
-                                        Snackbar.make(recyclerView, "Error: " + errorMessage,
-                                                Snackbar.LENGTH_LONG).show();
-                                    });
-                                }
+                    genericController.deleteQrByIdImpl(apiKey, Integer.parseInt(qrCode.getId()), new GenericCallback() {
+                        @Override
+                        public void success(String response) {
+                            Log.d("DeleteQR", "QR code deleted successfully");
+                            runOnUiThread(() -> {
+                                Toast.makeText(MainActivity.this, "QR code deleted", Toast.LENGTH_SHORT).show();
+                                qrCodeList.remove(qrCode);
+                                adapter.updateData(qrCodeList);
                             });
+                        }
+
+                        @Override
+                        public void error(String error) {
+                            Log.e("DeleteQR Error", error);
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to delete QR code", Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 })
                 .setNegativeButton("No", null)
                 .show();

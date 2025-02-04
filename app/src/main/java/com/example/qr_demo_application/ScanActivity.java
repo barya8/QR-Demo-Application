@@ -28,7 +28,6 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -124,7 +123,7 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     private void askForImageSource() {
-        new     AlertDialog.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle("Choose Image Source")
                 .setMessage("Would you like to take a picture or select one from your gallery?")
                 .setPositiveButton("Camera", (dialog, which) -> launchCamera())
@@ -137,6 +136,7 @@ public class ScanActivity extends AppCompatActivity {
         requestPermissionLauncher.launch(Manifest.permission.CAMERA);
         requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
     }
+
     private void showImageSourceDialog() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         galleryLauncher.launch(intent);
@@ -245,8 +245,8 @@ public class ScanActivity extends AppCompatActivity {
 
             // Get matching item parameters (including QR ID)
             Map<String, String> updateParams = isUrlMatchInClientData(clientDataJson, scannedUrl);
-
-            if ((!updateParams.isEmpty())&&(updateParams.get("scanned").equals(false))) {
+            boolean IsOneTime = updateParams.get("type").equals("3") || updateParams.get("type").equals("1");
+            if ((!updateParams.isEmpty()) && (updateParams.get("scanned").equals(false)) && (IsOneTime)) {
                 updateParams.put("isScanned", "true");
                 updateParams.remove("scanned");
                 updateParams.remove("base64Image");
@@ -263,7 +263,7 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     private void updateQrStatus(Map<String, String> updateParams) {
-            genericController.updateQrByIdImpl(apiKey, updateParams, new GenericCallback() {
+        genericController.updateQrByIdImpl(apiKey, updateParams, new GenericCallback() {
             @Override
             public void success(String response) {
                 Log.d("ScanActivity", "QR Update Successful: " + response);
@@ -295,7 +295,7 @@ public class ScanActivity extends AppCompatActivity {
 
                     String itemUrl = item.optString("url", "");
                     if (itemUrl.equals(scannedUrl)) {
-                        itemParams.put("id",key);
+                        itemParams.put("id", key);
                         // Collect all parameters needed for the update
                         Iterator<String> itemKeys = item.keys();
                         while (itemKeys.hasNext()) {

@@ -180,6 +180,6 @@ This project is licensed under the **Apache License 2.0**. See the [LICENSE](LIC
 
 ## Support
 
-For questions or issues, please contact [Your Name](mailto:bar.yaron@s.afeka.ac.il).
+For questions or issues, please contact [Bar Yaron](mailto:bar.yaron@s.afeka.ac.il).
 
 ---

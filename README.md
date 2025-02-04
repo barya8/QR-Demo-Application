@@ -1,5 +1,3 @@
-	---
-
 	# QR Demo Application
 
 	The **QR Demo Application** is an Android app that allows users to generate, manage, and scan QR codes. It integrates with a backend API to fetch, update, and delete QR code data. The app supports two user modes: **Client** and **Admin**, each with different levels of access and functionality.
